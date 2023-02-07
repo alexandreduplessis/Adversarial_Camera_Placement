@@ -36,7 +36,7 @@ def main_SA(N, x0, xf, nb_camera, obstacle_list, T, T_min, alpha, max_iter):
         theta = np.random.uniform(np.pi/2, np.pi)
     elif boundary == 3:
         theta = np.random.uniform(np.pi, 3*np.pi/2)
-    # add camera to list
+    # add camera to list, only one camera supported for now
     camera_list.append([cam, theta, 0.5])
     # initialize path with camera
     path = path_finder(N, x0, xf, camera_list, obstacle_list)
