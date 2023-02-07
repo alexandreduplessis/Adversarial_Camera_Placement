@@ -44,7 +44,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     visualize = args.visualize
 
-    N = 10
+    N = 15
     x0 = np.array([0, 0])
     xf = np.array([N-1, N-1])
 
@@ -56,14 +56,17 @@ if __name__ == "__main__":
     #         o.append(np.array([i, j]))
 
     # defining cameras
-    camera_list = []
-    # we define a camera C by its position (x,y), its orientation theta and its angle alpha
-    cam_x, cam_y = 0, N-1
-    cam = np.array([cam_x, cam_y])
-    # points towards (2, 0)
-    theta = -np.pi/4
-    alpha = .8
-    camera_list.append([cam, theta, alpha])
+    # camera_list = []
+    # # we define a camera C by its position (x,y), its orientation theta and its angle alpha
+    # cam_x, cam_y = 0, N-1
+    # cam = np.array([cam_x, cam_y])
+    # # points towards (2, 0)
+    # theta = -np.pi/4
+    # alpha = .8
+    # camera_list.append([cam, theta, alpha])
+    camera_list = [[np.array([0, N-1]), -np.pi/4, .2],
+                     [np.array([N-1, N-1]), -3*np.pi/4, .2]]
+    
 
     start_time = time.time()
     path = path_finder(N, x0, xf, camera_list,  obstacle_list)

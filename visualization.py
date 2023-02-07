@@ -124,7 +124,7 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
     plt.show()
 
 if __name__ == "__main__":
-    N = 10
+    N = 15
     # camera_list = [[np.array([-2., 2.]), -np.pi/4, 0.8]]
     camera_list = [[np.array([-2., 2.]), -np.pi/4, .2],
                      [np.array([2., 2.]), -3*np.pi/4, .2]]
