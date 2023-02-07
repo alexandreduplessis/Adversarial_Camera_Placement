@@ -39,8 +39,8 @@ def main_U(N, x0, xf, camera_list, obstacle_list):
         W[cam_x, cam_y] += 1.
 
     # f = lambda x, u: np.exp(-np.dot(u-x0, W[int(x[0]), int(x[1])]))
-    f = lambda x, u: 0.1 * (len(camera_list) + 3. - W[int(x[0]), int(x[1])])
-
+    f = lambda x, u: .2 * (len(camera_list) + 1. - W[int(x[0]), int(x[1])])
+    print(W)
     history = {}
 
 

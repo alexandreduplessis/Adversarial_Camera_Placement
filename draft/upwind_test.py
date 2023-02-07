@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import minimize, rosen, rosen_der
 import time
 
-N = 15
+N = 5
 
 doublon = 0
 
@@ -44,10 +44,10 @@ o = []
 # W = np.zeros((N, N, 2))
 W = np.zeros((N, N))
 # we define a camera C by its position (x,y), its orientation theta and its angle alpha
-cam_x, cam_y = N-1, N-3
+cam_x, cam_y = 4, 0
 cam = np.array([cam_x, cam_y])
 # points towards (2, 0)
-theta = 5*np.pi/4
+theta = 2.
 alpha = .5
 
 camera_points = []

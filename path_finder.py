@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from upwind import main_U
 import time
+import argparse
 
 
 def path_finder(N, x0, xf, camera_list, obstacle_list):
@@ -37,7 +38,13 @@ def path_finder(N, x0, xf, camera_list, obstacle_list):
 
 # main
 if __name__ == "__main__":
-    N = 5
+    parser = argparse.ArgumentParser(description='Parsing command line arguments.')
+    parser.add_argument("--visualize", type=int, default=0)
+
+    args = parser.parse_args()
+    visualize = args.visualize
+
+    N = 10
     x0 = np.array([0, 0])
     xf = np.array([N-1, N-1])
 
@@ -51,14 +58,45 @@ if __name__ == "__main__":
     # defining cameras
     camera_list = []
     # we define a camera C by its position (x,y), its orientation theta and its angle alpha
-    cam_x, cam_y = 4, 0
+    cam_x, cam_y = 0, N-1
     cam = np.array([cam_x, cam_y])
     # points towards (2, 0)
-    theta = 4.288
-    alpha = .5
+    theta = -np.pi/4
+    alpha = .8
     camera_list.append([cam, theta, alpha])
 
     start_time = time.time()
-    path = path_finder(N, x0, xf, obstacle_list, camera_list)
+    path = path_finder(N, x0, xf, camera_list,  obstacle_list)
     print("Path: ", path)
     print("--- %s seconds ---" % (time.time() - start_time))
+
+    if visualize:
+        camera_points = []
+        # for each point x in the grid
+        for i in range(N):
+            for j in range(N):
+                for camera in camera_list:
+                    cam, theta, alpha = camera
+                    # if x is in the scope of the camera, i.e. if the vector x - cam is in the cone defined by the camera
+                    if (i != cam[0] or j != cam[1]) and np.dot((np.array([i, j]) - cam)/np.linalg.norm(np.array([i, j]) - cam), np.array([np.cos(theta), np.sin(theta)])) > np.cos(alpha/2):
+                        camera_points.append(np.array([i, j]))
+        for camera in camera_list:
+            cam, theta, alpha = camera
+            camera_points.append(cam)
+
+        for i in range(N):
+            for j in range(N):
+                plt.plot(i, j, 'wo')
+        for i in range(len(path)):
+            plt.plot(path[i][0], path[i][1], 'go')
+        # visualize obstacle
+        for point in obstacle_list:
+            plt.plot(point[0], point[1], 'ro')
+        # visualize camera
+        for point in camera_points:
+            # if point is not in path
+            if not any((point == x).all() for x in path):
+                plt.plot(point[0], point[1], 'bo')
+            else: # plot in purple
+                plt.plot(point[0], point[1], 'mo')
+        plt.show()
