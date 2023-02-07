@@ -22,7 +22,7 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
     for i in range(len(camera_list)):
         cam_pos = camera_list[i][0]
         cam_orient = camera_list[i][1]
-        cam_angle = camera_list[i][2]
+        cam_angle = camera_list[i][2]/2
 
         center_base = cam_pos
         direc = np.array([np.cos(cam_orient), np.sin(cam_orient)])
@@ -83,17 +83,21 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
     #         o.append(np.array([i, j]))
 
     # defining cameras
-    camera_list = []
-    # convert cam_pos to grid
-    cam_x = (cam_pos[0] - x_min) / (x_max - x_min) * (N - 1)
-    cam_y = (cam_pos[1] - y_min) / (y_max - y_min) * (N - 1)
-    # convert to int
-    cam_x = int(cam_x)
-    cam_y = int(cam_y)
-    cam_ind = np.array([cam_x, cam_y])
-    camera_list.append([cam_ind, cam_orient, cam_angle])
-    path = path_finder(N, x0, xf, camera_list, obstacle_list)
-
+    camera_list_grid = []
+    for camera in camera_list:
+        cam_pos = camera[0]
+        cam_orient = camera[1]
+        cam_angle = camera[2]
+        # convert cam_pos to grid
+        cam_x = (cam_pos[0] - x_min) / (x_max - x_min) * (N - 1)
+        cam_y = (cam_pos[1] - y_min) / (y_max - y_min) * (N - 1)
+        # convert to int
+        cam_x = int(cam_x)
+        cam_y = int(cam_y)
+        cam_ind = np.array([cam_x, cam_y])
+        camera_list_grid.append([cam_ind, cam_orient, cam_angle])
+    path = path_finder(N, x0, xf, camera_list_grid, obstacle_list)
+    print(path)
 
     # convert to real values
     traj = np.zeros((len(path), 2))
@@ -120,7 +124,8 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
     plt.show()
 
 if __name__ == "__main__":
-    N = 5
+    N = 10
+    # camera_list = [[np.array([-2., 2.]), -np.pi/4, 0.8]]
     camera_list = [[np.array([-2., 2.]), -np.pi/4, .2],
                      [np.array([2., 2.]), -3*np.pi/4, .2]]
     obstacle_list = []

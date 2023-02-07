@@ -39,8 +39,7 @@ def main_U(N, x0, xf, camera_list, obstacle_list):
         W[cam_x, cam_y] += 1.
 
     # f = lambda x, u: np.exp(-np.dot(u-x0, W[int(x[0]), int(x[1])]))
-    f = lambda x, u: .2 * (len(camera_list) + 1. - W[int(x[0]), int(x[1])])
-    print(W)
+    f = lambda x, u: .01 * (len(camera_list) + 1. - W[int(x[0]), int(x[1])])
     history = {}
 
 
@@ -153,11 +152,11 @@ if __name__ == "__main__":
     # defining cameras
     camera_list = []
     # we define a camera C by its position (x,y), its orientation theta and its angle alpha
-    cam_x, cam_y = N-1, N-3
+    cam_x, cam_y = 0, N-1
     cam = np.array([cam_x, cam_y])
     # points towards (2, 0)
-    theta = 5*np.pi/4
-    alpha = .5
+    theta = -np.pi/4
+    alpha = .8
     camera_list.append([cam, theta, alpha])
 
     start_time = time.time()
