@@ -13,10 +13,11 @@ def path_finder(N, x0, xf, camera_list, obstacle_list, saveU=0):
     print("---------------------")
     
     if saveU:
-        plt.imshow(U)
-        plt.show()
-        with open('uarray.npy', 'wb') as f:
+        image = plt.imshow(U)
+        plt.savefig("outputs/uarray.png", format="png")
+        with open('outputs/uarray.npy', 'wb') as f:
             np.save(f, U)
+        plt.show()
     # compute path from xf to x0
     path = []
     xf = np.array([N-1, N-1])
@@ -46,12 +47,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Parsing command line arguments.')
     parser.add_argument("--visualize", type=int, default=0)
     parser.add_argument("--saveU", type=int, default=0)
+    parser.add_argument("--N", type=int, default=10)
 
     args = parser.parse_args()
     visualize = args.visualize
     saveU = args.saveU
+    N = args.N
 
-    N = 15
     x0 = np.array([0, 0])
     xf = np.array([N-1, N-1])
 

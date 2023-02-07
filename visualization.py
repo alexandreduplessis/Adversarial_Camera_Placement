@@ -120,7 +120,7 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
         left=0, bottom=0, right=1, top=1, wspace=0, hspace=0
     )
 
-    plt.savefig("local.pdf", dpi=300)
+    plt.savefig("outputs/local.pdf", dpi=300)
     plt.show()
 
 if __name__ == "__main__":
