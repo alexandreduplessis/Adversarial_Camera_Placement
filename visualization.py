@@ -19,30 +19,30 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
     ax.set_yticks([])
     ax.set_yticks([], minor=True)
 
-    # suppose there is only one camera
-    cam_pos = camera_list[0][0]
-    cam_orient = camera_list[0][1]
-    cam_angle = camera_list[0][2]
+    for i in range(len(camera_list)):
+        cam_pos = camera_list[i][0]
+        cam_orient = camera_list[i][1]
+        cam_angle = camera_list[i][2]
 
-    center_base = cam_pos
-    direc = np.array([np.cos(cam_orient), np.sin(cam_orient)])
-    ortho = np.array([-np.sin(cam_orient), np.cos(cam_orient)])
+        center_base = cam_pos
+        direc = np.array([np.cos(cam_orient), np.sin(cam_orient)])
+        ortho = np.array([-np.sin(cam_orient), np.cos(cam_orient)])
 
-    vertices = np.stack(
-        [cam_pos,
-        cam_pos + max_length * (direc + np.sin(cam_angle) * ortho),
-        cam_pos + max_length * (direc - np.sin(cam_angle) * ortho)],
-        axis=0
-    )
+        vertices = np.stack(
+            [cam_pos,
+            cam_pos + max_length * (direc + np.sin(cam_angle) * ortho),
+            cam_pos + max_length * (direc - np.sin(cam_angle) * ortho)],
+            axis=0
+        )
 
-    cam_cone_1_plt = ax.add_patch(Polygon(
-        vertices,
-        fill=True,
-        alpha=.5,
-        color=(.7, .7, 0.),
-        zorder=3,
-        lw=0
-    ))
+        cam_cone_plt = ax.add_patch(Polygon(
+            vertices,
+            fill=True,
+            alpha=.5,
+            color=(.7, .7, 0.),
+            zorder=3,
+            lw=0
+        ))
 
     # example obs
     # obs_pos = np.array([0.8, 0.1])
@@ -121,6 +121,7 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
 
 if __name__ == "__main__":
     N = 5
-    camera_list = [[np.array([-2., 2.]), -np.pi/4, .5]]
+    camera_list = [[np.array([-2., 2.]), -np.pi/4, .2],
+                     [np.array([2., 2.]), -3*np.pi/4, .2]]
     obstacle_list = []
     visualization(N, camera_list, obstacle_list)

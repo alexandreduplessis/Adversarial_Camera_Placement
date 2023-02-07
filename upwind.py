@@ -36,10 +36,10 @@ def main_U(N, x0, xf, camera_list, obstacle_list):
         cam_x = cam[0][0]
         cam_y = cam[0][1]
         # W[cam_x, cam_y] = - 1. * cam/np.linalg.norm(cam)
-        W[cam_x, cam_y] = 1.
+        W[cam_x, cam_y] += 1.
 
     # f = lambda x, u: np.exp(-np.dot(u-x0, W[int(x[0]), int(x[1])]))
-    f = lambda x, u: 2. - W[int(x[0]), int(x[1])]
+    f = lambda x, u: 0.1 * (len(camera_list) + 3. - W[int(x[0]), int(x[1])])
 
     history = {}
 
