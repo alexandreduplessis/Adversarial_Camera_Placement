@@ -1,7 +1,7 @@
 # Adversarial Path Planning for Optimal Camera Positioning
 _Gaia Carenini, Alexandre Duplessis_
 
-This is the code for paper ...
+This is the code for paper [_Adversarial Path Planning for Optimal Camera Positioning_](https://raw.githubusercontent.com/alexandreduplessis/Clean_Robotics_project/master/Camera_Placement_Paper.pdf).
 
 **Note:** This code is currently being written, and is not at all optimized in terms of complexity.
 
