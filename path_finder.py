@@ -5,13 +5,18 @@ import time
 import argparse
 
 
-def path_finder(N, x0, xf, camera_list, obstacle_list):
+def path_finder(N, x0, xf, camera_list, obstacle_list, saveU=0):
     # compute U
     print("---------------------")
     print("Computing U...")
     U = main_U(N, x0, xf, camera_list, obstacle_list)
     print("---------------------")
-
+    
+    if saveU:
+        plt.imshow(U)
+        plt.show()
+        with open('uarray.npy', 'wb') as f:
+            np.save(f, U)
     # compute path from xf to x0
     path = []
     xf = np.array([N-1, N-1])
@@ -40,9 +45,11 @@ def path_finder(N, x0, xf, camera_list, obstacle_list):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Parsing command line arguments.')
     parser.add_argument("--visualize", type=int, default=0)
+    parser.add_argument("--saveU", type=int, default=0)
 
     args = parser.parse_args()
     visualize = args.visualize
+    saveU = args.saveU
 
     N = 15
     x0 = np.array([0, 0])
@@ -69,7 +76,7 @@ if __name__ == "__main__":
     
 
     start_time = time.time()
-    path = path_finder(N, x0, xf, camera_list,  obstacle_list)
+    path = path_finder(N, x0, xf, camera_list,  obstacle_list, saveU=saveU)
     print("Path: ", path)
     print("--- %s seconds ---" % (time.time() - start_time))
 
