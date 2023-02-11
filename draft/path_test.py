@@ -40,6 +40,7 @@ print(U[0:5, 0:5])
 print(U[6, 6], U[7, 6], U[6, 7])
 print(W[6, 6], W[7, 6], W[6, 7])
 plt.imshow(U)
+plt.colorbar()
 plt.show()
 
 # compute path from xf to x0

@@ -40,7 +40,7 @@ def main_U(N, x0, xf, camera_list, obstacle_list):
 
     # f = lambda x, u: np.exp(W[int(x[0]), int(x[1])])
     # f = lambda x, u: .01 * (len(camera_list) + 1. - W[int(x[0]), int(x[1])])
-    f = lambda x, u: 1/(W[int(x[0]), int(x[1])] + .6)
+    f = lambda x, u: 1/(W[int(x[0]), int(x[1])] + .1)
 
     history = {}
 
@@ -167,4 +167,5 @@ if __name__ == "__main__":
 
     # plot U
     plt.imshow(U)
+    plt.colorbar()
     plt.show()

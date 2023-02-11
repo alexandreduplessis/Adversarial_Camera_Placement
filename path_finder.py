@@ -15,6 +15,7 @@ def path_finder(N, x0, xf, camera_list, obstacle_list, saveU=0):
     
     if saveU:
         image = plt.imshow(U)
+        plt.colorbar(image)
         plt.title("U matrix in a {}x{} grid".format(N, N))
         plt.savefig("outputs/uarray.png", format="png")
         with open('outputs/uarray.npy', 'wb') as f:
@@ -76,7 +77,7 @@ if __name__ == "__main__":
     # alpha = .8
     # camera_list.append([cam, theta, alpha])
     # camera_list = [[np.array([0, N-1]), -np.pi/4, .5]]
-    camera_list = [[np.array([4, 4]), -3*np.pi/4, 0.5]]
+    camera_list = [[np.array([0, N-1]), -np.pi/4, 0.5]]
 
     start_time = time.time()
     path = path_finder(N, x0, xf, camera_list,  obstacle_list, saveU=saveU)
