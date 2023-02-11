@@ -5,6 +5,9 @@ This is the code for paper [_Adversarial Path Planning for Optimal Camera Positi
 
 **Note:** This code is currently being written, and is not at all optimized in terms of complexity.
 
+## Abstract
+The use of visual sensors is  flourishing, driven among others by the several applications in detection and prevention of crimes or dangerous events. While the problem of optimal camera placement for total coverage has been solved for a decade or so, that of the arrangement of cameras maximizing the recognition of objects "in-transit" is still open. The objective of this paper is to attack this problem by providing an adversarial method of proven optimality based on the resolution of Hamilton-Jacobi equations. The problem is attacked by  first assuming the perspective of an adversary, i.e. computing explicitly the path minimizing the probability of detection and the quality of reconstruction. Building on this result,  we introduce an optimality measure for camera configurations and perform a simulated annealing algorithm to find the optimal camera placement.
+
 ### Requirements
 `numpy`, `matplotlib`, `scipy`, `tqdm`
 

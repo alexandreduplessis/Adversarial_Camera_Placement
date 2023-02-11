@@ -119,14 +119,14 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
     plt.subplots_adjust(
         left=0, bottom=0, right=1, top=1, wspace=0, hspace=0
     )
+    plt.title("Clean path visualization")
 
     plt.savefig("outputs/local.pdf", dpi=300)
     plt.show()
 
 if __name__ == "__main__":
-    N = 15
+    N = 5
     # camera_list = [[np.array([-2., 2.]), -np.pi/4, 0.8]]
-    camera_list = [[np.array([-2., 2.]), -np.pi/4, .2],
-                     [np.array([2., 2.]), -3*np.pi/4, .2]]
+    camera_list = [[np.array([-2, -2.]), 0.79, .5]]
     obstacle_list = []
     visualization(N, camera_list, obstacle_list)

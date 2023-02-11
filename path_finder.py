@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from upwind import main_U
+from utils import cost_path
 import time
 import argparse
 
@@ -14,6 +15,7 @@ def path_finder(N, x0, xf, camera_list, obstacle_list, saveU=0):
     
     if saveU:
         image = plt.imshow(U)
+        plt.title("U matrix in a {}x{} grid".format(N, N))
         plt.savefig("outputs/uarray.png", format="png")
         with open('outputs/uarray.npy', 'wb') as f:
             np.save(f, U)
@@ -73,13 +75,14 @@ if __name__ == "__main__":
     # theta = -np.pi/4
     # alpha = .8
     # camera_list.append([cam, theta, alpha])
-    camera_list = [[np.array([0, N-1]), -np.pi/4, .2],
-                     [np.array([N-1, N-1]), -3*np.pi/4, .2]]
-    
+    # camera_list = [[np.array([0, N-1]), -np.pi/4, .5]]
+    camera_list = [[np.array([4, 4]), -3*np.pi/4, 0.5]]
 
     start_time = time.time()
     path = path_finder(N, x0, xf, camera_list,  obstacle_list, saveU=saveU)
     print("Path: ", path)
+    # compute path length with cost_path
+    print("Path length: ", cost_path(path))
     print("--- %s seconds ---" % (time.time() - start_time))
 
     if visualize:
@@ -111,4 +114,6 @@ if __name__ == "__main__":
                 plt.plot(point[0], point[1], 'bo')
             else: # plot in purple
                 plt.plot(point[0], point[1], 'mo')
+        plt.savefig("outputs/path_raw.png", format="png")
+        plt.title("Optimal path on a {}x{} grid".format(N, N))
         plt.show()

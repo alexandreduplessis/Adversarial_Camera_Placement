@@ -24,7 +24,7 @@ def camera_random_setting(N, cam_angle=.5):
     cam = np.array([cam_x, cam_y])
     # initialize camera orientation such that it sees at least one point of the grid
     if boundary == 0:
-        theta = np.random.uniform(0, np.pi/2)
+        theta = np.random.uniform(-np.pi/2, np.pi/2)
     elif boundary == 1:
         theta = np.random.uniform(3*np.pi/2, 2*np.pi)
     elif boundary == 2:
@@ -35,7 +35,7 @@ def camera_random_setting(N, cam_angle=.5):
     return [cam, theta, cam_angle]
 
 
-def main_SA(N, x0, xf, nb_camera, obstacle_list, T, T_min, alpha, max_iter):
+def main_SA(N, x0, xf, nb_camera, obstacle_list, T, T_min, alpha, max_iter, visualize=False):
     # initialize path
     path = path_finder(N, x0, xf, [], obstacle_list)
     # initialize camera list
@@ -89,6 +89,41 @@ def main_SA(N, x0, xf, nb_camera, obstacle_list, T, T_min, alpha, max_iter):
                     best_camera_list = new_camera_list
                     # update best path length
                     best_path_length = new_path_length
+        # visualize best path
+        if visualize:
+            path = best_path.copy()
+            camera_points = []
+            # for each point x in the grid
+            for i in range(N):
+                for j in range(N):
+                    for camera in best_camera_list:
+                        cam, theta, alpha = camera
+                        # if x is in the scope of the camera, i.e. if the vector x - cam is in the cone defined by the camera
+                        if (i != cam[0] or j != cam[1]) and np.dot((np.array([i, j]) - cam)/np.linalg.norm(np.array([i, j]) - cam), np.array([np.cos(theta), np.sin(theta)])) > np.cos(alpha/2):
+                            camera_points.append(np.array([i, j]))
+            for camera in best_camera_list:
+                cam, theta, alpha = camera
+                camera_points.append(cam)
+
+            for i in range(N):
+                for j in range(N):
+                    plt.plot(i, j, 'wo')
+            for i in range(len(path)):
+                plt.plot(path[i][0], path[i][1], 'go')
+            # visualize obstacle
+            for point in obstacle_list:
+                plt.plot(point[0], point[1], 'ro')
+            # visualize camera
+            for point in camera_points:
+                # if point is not in path
+                if not any((point == x).all() for x in path):
+                    plt.plot(point[0], point[1], 'bo')
+                else: # plot in purple
+                    plt.plot(point[0], point[1], 'mo')
+            plt.savefig("outputs/path_raw.png", format="png")
+            plt.title("Optimal path on a {}x{} grid".format(N, N))
+            plt.show()
+        print("Camera:", best_camera_list, "score:", best_path_length)
         # update temperature
         T = alpha*T
         # update iteration number
@@ -113,9 +148,9 @@ if __name__ == "__main__":
     T = 100
     T_min = 1e-3
     alpha = 0.99
-    max_iter = 1
+    max_iter = 100
     
-    path, camera_list = main_SA(N, x0, xf, nb_camera, obstacle_list, T, T_min, alpha, max_iter)
+    path, camera_list = main_SA(N, x0, xf, nb_camera, obstacle_list, T, T_min, alpha, max_iter, visualize)
 
     print("Camera: ", camera_list)
 

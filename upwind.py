@@ -38,8 +38,10 @@ def main_U(N, x0, xf, camera_list, obstacle_list):
         # W[cam_x, cam_y] = - 1. * cam/np.linalg.norm(cam)
         W[cam_x, cam_y] += 1.
 
-    # f = lambda x, u: np.exp(-np.dot(u-x0, W[int(x[0]), int(x[1])]))
-    f = lambda x, u: .01 * (len(camera_list) + 1. - W[int(x[0]), int(x[1])])
+    # f = lambda x, u: np.exp(W[int(x[0]), int(x[1])])
+    # f = lambda x, u: .01 * (len(camera_list) + 1. - W[int(x[0]), int(x[1])])
+    f = lambda x, u: 1/(W[int(x[0]), int(x[1])] + .6)
+
     history = {}
 
 
@@ -90,8 +92,8 @@ def main_U(N, x0, xf, camera_list, obstacle_list):
             if M[i, j] == 1:
                 x_NF = compute_NF(np.array([i, j]), AF)
                 for couple in x_NF:
-                    # if U is not infinity
-                    if U[couple[0][0], couple[0][1]] != np.inf and U[couple[1][0], couple[1][1]] != np.inf:
+                    # if U is not infinity and both points of couple are not (i,j)
+                    if U[couple[0][0], couple[0][1]] != np.inf and U[couple[1][0], couple[1][1]] != np.inf and (couple[0][0] != i or couple[0][1] != j) and (couple[1][0] != i or couple[1][1] != j):
                         new_u, history = compute_U(np.array([i, j]), couple[0], couple[1], U[couple[0][0], couple[0][1]], U[couple[1][0], couple[1][1]], f, history)
                         U[i, j] = np.min([U[i, j], new_u])
 
@@ -126,8 +128,8 @@ def main_U(N, x0, xf, camera_list, obstacle_list):
                 if M[i, j] == 1 and not np_belongs(np.array([i, j]), o):
                     x_NF = compute_NF(np.array([i, j]), AF)
                     for couple in x_NF:
-                        # if U is not infinity
-                        if U[couple[0][0], couple[0][1]] != np.inf and U[couple[1][0], couple[1][1]] != np.inf:
+                        # if U is not infinity and both points of couple are different from x
+                        if U[couple[0][0], couple[0][1]] != np.inf and U[couple[1][0], couple[1][1]] != np.inf and not np.array_equal(couple[0], np.array([i, j])) and not np.array_equal(couple[1], np.array([i, j])):
                             new_u, history = compute_U(np.array([i, j]), couple[0], couple[1], U[couple[0][0], couple[0][1]], U[couple[1][0], couple[1][1]], f, history)
                             U[i, j] = np.min([U[i, j], new_u])
     # verify there is no more considered point with exists_considered

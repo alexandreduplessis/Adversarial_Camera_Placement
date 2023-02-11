@@ -98,6 +98,13 @@ def compute_AF(M, AcceptedFront):
     return AF
 
 def compute_U(x, xj, xk, uj, uk, f, history):
+    # if it is (8, 8)
+    if x[0] == 8 and x[1] == 8:
+        print("x")
+        print("xj", xj)
+        print("xk", xk)
+        print("uj", uj)
+        print("uk", uk)
     # check if [x, xj, xk, uj, uk] is in history
     if str([x, xj, xk, uj, uk]) in history:
         return history[str([x, xj, xk, uj, uk])], history
@@ -125,4 +132,7 @@ def compute_U(x, xj, xk, uj, uk, f, history):
     # print("min point", theta_min*xj + (1-theta_min)*xk)
     # print("u value", res)
     history[str([x, xj, xk, uj, uk])] = res
+    # if it is (8, 8)
+    if x[0] == 8 and x[1] == 8:
+        print("res", res)
     return res, history
