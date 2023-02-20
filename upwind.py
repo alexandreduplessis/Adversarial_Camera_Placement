@@ -13,6 +13,7 @@ def main_U(N, x0, xf, camera_list, obstacle_list):
     # nfconstant must be higher than the maximum distance between two points in the grid, so...
     nfconstant = 1.5
     o = obstacle_list
+    obstacle_points = obstacles_list_to_points(o)
 
     # W = np.zeros((N, N, 2))
     W = np.zeros((N, N))
@@ -21,23 +22,20 @@ def main_U(N, x0, xf, camera_list, obstacle_list):
     # Cameras setting
     ###############################
     camera_points = []
-    # for each point x in the grid
-    for i in range(N):
-        for j in range(N):
-            for cam in camera_list:
-                # if x is in the scope of the camera, i.e. if the vector x - cam is in the cone defined by the camera
-                if (i != cam[0][0] or j != cam[0][1]) and np.dot((np.array([i, j]) - cam[0])/np.linalg.norm(np.array([i, j]) - cam[0]), np.array([np.cos(cam[1]), np.sin(cam[1])])) > np.cos(cam[2]/2):
-                    # print("(i,j) = ", i, j)
-                    # W[i, j] = 1. * (x0 - np.array([i, j]))/np.linalg.norm(x0 - np.array([i, j]))
-                    W[i, j] += 1.
-                    camera_points.append(np.array([i, j]))
+    for cam in camera_list:
+        # compute visible points
+        visible_points = compute_camera_visible_points(cam, o, N)
+        for point in visible_points:
+            W[point[0], point[1]] += 1
+            camera_points.append(np.array(point))
+                    
     # set W for cam
     for cam in camera_list:
         cam_x = cam[0][0]
         cam_y = cam[0][1]
         # W[cam_x, cam_y] = - 1. * cam/np.linalg.norm(cam)
         W[cam_x, cam_y] += 1.
-
+    W = np.zeros((N, N))
     # f = lambda x, u: np.exp(W[int(x[0]), int(x[1])])
     # f = lambda x, u: .01 * (len(camera_list) + 1. - W[int(x[0]), int(x[1])])
     f = lambda x, u: 1/(W[int(x[0]), int(x[1])] + .1)
@@ -85,20 +83,20 @@ def main_U(N, x0, xf, camera_list, obstacle_list):
                         break
 
 
-    Accepted_Front = compute_AcceptedFront(M, o)
+    Accepted_Front = compute_AcceptedFront(M, obstacle_points)
     AF = compute_AF(M, Accepted_Front)
     for i in range(N):
         for j in range(N):
             if M[i, j] == 1:
                 x_NF = compute_NF(np.array([i, j]), AF)
                 for couple in x_NF:
-                    # if U is not infinity and both points of couple are not (i,j)
-                    if U[couple[0][0], couple[0][1]] != np.inf and U[couple[1][0], couple[1][1]] != np.inf and (couple[0][0] != i or couple[0][1] != j) and (couple[1][0] != i or couple[1][1] != j):
+                    # if U is not infinity and both points of couple are not (i,j) and (i,j) is not in obstacle
+                    if U[couple[0][0], couple[0][1]] != np.inf and U[couple[1][0], couple[1][1]] != np.inf and (couple[0][0] != i or couple[0][1] != j) and (couple[1][0] != i or couple[1][1] != j) and not np_belongs(np.array([i, j]), obstacle_points):
                         new_u, history = compute_U(np.array([i, j]), couple[0], couple[1], U[couple[0][0], couple[0][1]], U[couple[1][0], couple[1][1]], f, history)
                         U[i, j] = np.min([U[i, j], new_u])
 
 
-    AcceptedFront = compute_AcceptedFront(M, o)
+    AcceptedFront = compute_AcceptedFront(M, obstacle_points)
     AF = compute_AF(M, AcceptedFront)
 
     for _ in tqdm(range(N*N)):
@@ -107,31 +105,35 @@ def main_U(N, x0, xf, camera_list, obstacle_list):
         smallest_U_point = np.array([0, 0])
         for i in range(N):
             for j in range(N):
-                if M[i, j] == 1 and U[i, j] <= smallest_U and not np_belongs(np.array([i, j]), o):
+                if M[i, j] == 1 and U[i, j] <= smallest_U and not np_belongs(np.array([i, j]), obstacle_points):
                     smallest_U = U[i, j]
                     smallest_U_point = np.array([i, j])
         # print("smallest_U_point: ", smallest_U_point)
         # move the point to accepted
         M[smallest_U_point[0], smallest_U_point[1]] = 0
         # update AF
-        AcceptedFront = compute_AcceptedFront(M, o)
+        AcceptedFront = compute_AcceptedFront(M, obstacle_points)
         AF = compute_AF(M, AcceptedFront)
         # move far points adjacent to the accepted point to considered
         neighbors = [np.array([smallest_U_point[0]-1, smallest_U_point[1]]), np.array([smallest_U_point[0]+1, smallest_U_point[1]]), np.array([smallest_U_point[0], smallest_U_point[1]-1]), np.array([smallest_U_point[0], smallest_U_point[1]+1]), np.array([smallest_U_point[0]-1, smallest_U_point[1]-1]), np.array([smallest_U_point[0]-1, smallest_U_point[1]+1]), np.array([smallest_U_point[0]+1, smallest_U_point[1]-1]), np.array([smallest_U_point[0]+1, smallest_U_point[1]+1])]
         for neighbor in neighbors:
             # if neighbor is in bounds and is far and is not in o
-            if neighbor[0] >= 0 and neighbor[0] < N and neighbor[1] >= 0 and neighbor[1] < N and M[neighbor[0], neighbor[1]] == 2 and not np_belongs(neighbor, o):
+            if neighbor[0] >= 0 and neighbor[0] < N and neighbor[1] >= 0 and neighbor[1] < N and M[neighbor[0], neighbor[1]] == 2 and not np_belongs(neighbor, obstacle_points):
                 M[neighbor[0], neighbor[1]] = 1
         # for all considered points within distance maxdist from x and not in o, recompute U
         for i in range(N):
             for j in range(N):
-                if M[i, j] == 1 and not np_belongs(np.array([i, j]), o):
+                if M[i, j] == 1 and not np_belongs(np.array([i, j]), obstacle_points):
                     x_NF = compute_NF(np.array([i, j]), AF)
                     for couple in x_NF:
                         # if U is not infinity and both points of couple are different from x
                         if U[couple[0][0], couple[0][1]] != np.inf and U[couple[1][0], couple[1][1]] != np.inf and not np.array_equal(couple[0], np.array([i, j])) and not np.array_equal(couple[1], np.array([i, j])):
                             new_u, history = compute_U(np.array([i, j]), couple[0], couple[1], U[couple[0][0], couple[0][1]], U[couple[1][0], couple[1][1]], f, history)
                             U[i, j] = np.min([U[i, j], new_u])
+    # mark all obstacle points asa accepted
+    for obstacle_point in obstacle_points:
+        M[obstacle_point[0], obstacle_point[1]] = 0
+    
     # verify there is no more considered point with exists_considered
     assert not exists_considered(M)[0]
     print("U computed.")

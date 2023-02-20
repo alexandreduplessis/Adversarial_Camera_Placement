@@ -17,6 +17,88 @@ def cost_path(path):
         cost += np.linalg.norm(path[i] - path[i+1])
     return cost
 
+def grid_to_real_coordinates(x, N, L):
+    # convert coordinates from 0 to N-1 to coordinates from -L to L
+    return 2 * L * x / (N - 1) - L
+
+def grid_to_real_length(c, N, L):
+    # convert length from 0 to N-1 to length from -L to L
+    return 2 * L * c / (N - 1)
+
+def square_points(obstacle):
+    # returns the list of points of the square obstacle
+    # obstacle is (x1, y1, c) where (x1, y1) is the lower left corner of the square and c is the side length
+    obstacle_points = []
+    for i in range(obstacle[2]):
+        for j in range(obstacle[2]):
+            obstacle_points.append(np.array([obstacle[0] + i, obstacle[1] + j]))
+    return obstacle_points
+
+def obstacles_list_to_points(obstacle_list):
+    # from list of obstacles, returns the list of points of the obstacles
+    obstacle_list_points = []
+    for obstacle in obstacle_list:
+        obstacle_list_points += square_points(obstacle)
+    return obstacle_list_points
+
+def belongs_to_square(obstacle, point):
+    # obstacle is (x1, y1, c) where (x1, y1) is the lower left corner of the square and c is the side length
+    # point is (x, y)
+    # returns True if point is in the square
+    # returns False otherwise
+    if obstacle[0] <= point[0] <= obstacle[0] + obstacle[2] and obstacle[1] <= point[1] <= obstacle[1] + obstacle[2]:
+        return True
+    return False
+
+def segment_intersects_segment(point_1, point_2, point_3, point_4):
+    # Returns True if the segment [point_1, point_2] intersects the segment [point_3, point_4]
+    # Returns False otherwise
+    denominator = (point_4[1] - point_3[1]) * (point_2[0] - point_1[0]) - (point_4[0] - point_3[0]) * (point_2[1] - point_1[1])
+    if denominator == 0:
+        return False
+    ua = ((point_4[0] - point_3[0]) * (point_1[1] - point_3[1]) - (point_4[1] - point_3[1]) * (point_1[0] - point_3[0])) / denominator
+    ub = ((point_2[0] - point_1[0]) * (point_1[1] - point_3[1]) - (point_2[1] - point_1[1]) * (point_1[0] - point_3[0])) / denominator
+    if 0 <= ua <= 1 and 0 <= ub <= 1:
+        return True
+    return False
+
+
+def segment_intersects_square(point_1, point_2, square):
+    # Returns True if the segment [point_1, point_2] intersects the square
+    # Returns False otherwise
+    # square is a list of 4 points
+    # square[0] is the lower left corner
+    # square[1] is the lower right corner
+    # square[2] is the upper right corner
+    # square[3] is the upper left corner
+    # square[0] = square[4]
+    for i in range(4):
+        if segment_intersects_segment(point_1, point_2, square[i], square[i+1]):
+            return True
+    return False
+
+def compute_camera_visible_points(cam, obstacles_list, N):
+    # returns a list of points visible from the camera when obstacles are squares
+    visible_points = []
+    # for each point in the grid
+    for i in range(N):
+        for j in range(N):
+            point = np.array([i, j])
+            # if the point is in the camera scope where the camera is defined by (pos, theta, angle)
+            if (i != cam[0][0] or j != cam[0][1]) and np.dot((np.array([i, j]) - cam[0])/np.linalg.norm(np.array([i, j]) - cam[0]), np.array([np.cos(cam[1]), np.sin(cam[1])])) > np.cos(cam[2]/2):
+                # check if the point is visible from the camera
+                visible = True
+                for obstacle in obstacles_list:
+                    # obstacle is (x1, y1, c) where (x1, y1) are the coordinates of the lower left corner of the obstacle and c is the square side
+                    square = np.array([[obstacle[0], obstacle[1]], [obstacle[0] + obstacle[2], obstacle[1]], [obstacle[0] + obstacle[2], obstacle[1] + obstacle[2]], [obstacle[0], obstacle[1] + obstacle[2]], [obstacle[0], obstacle[1]]])
+                    if segment_intersects_square(cam[0], point, square):
+                        visible = False
+                        break
+                if visible:
+                    visible_points.append(point)
+    return visible_points
+
+
 # NF(x) is the set of segments [xj, xk] where [xj, xk] is in AF, and there exists x' on [xj, xk] such that x' is at distance at most nfconstant from x
 def compute_NF(x, AF):
     nfconstant = 1.5
@@ -136,3 +218,21 @@ def compute_U(x, xj, xk, uj, uk, f, history):
     if x[0] == 8 and x[1] == 8:
         print("res", res)
     return res, history
+
+# # testing compute_camera_visible_points
+# N = 10
+# camera = [np.array([0, 0]), np.pi/4, 0.8]
+# obstacles_list = [[4, 4, 2]]
+# print(compute_camera_visible_points(camera, obstacles_list, N))
+# # visualize with matplotlib
+# import matplotlib.pyplot as plt
+# plt.scatter([camera[0][0]], [camera[0][1]], color='red')
+# for obstacle in obstacles_list:
+#     # obstacle is (x1, y1, c) where (x1, y1) are the coordinates of the lower left corner of the obstacle and c is the square side
+#     plt.scatter([obstacle[0]], [obstacle[1]], color='black')
+#     plt.scatter([obstacle[0] + obstacle[2]], [obstacle[1]], color='black')
+#     plt.scatter([obstacle[0]], [obstacle[1] + obstacle[2]], color='black')
+#     plt.scatter([obstacle[0] + obstacle[2]], [obstacle[1] + obstacle[2]], color='black')
+# for point in compute_camera_visible_points(camera, obstacles_list, N):
+#     plt.scatter([point[0]], [point[1]], color='green')
+# plt.show()

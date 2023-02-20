@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from upwind import main_U
-from utils import cost_path
+from utils import *
 import time
 import argparse
 
@@ -48,8 +48,8 @@ def path_finder(N, x0, xf, camera_list, obstacle_list, saveU=0):
 # main
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Parsing command line arguments.')
-    parser.add_argument("--visualize", type=int, default=0)
-    parser.add_argument("--saveU", type=int, default=0)
+    parser.add_argument("--visualize", type=int, default=1)
+    parser.add_argument("--saveU", type=int, default=1)
     parser.add_argument("--N", type=int, default=10)
 
     args = parser.parse_args()
@@ -63,9 +63,9 @@ if __name__ == "__main__":
     # defining obstacles
         # defining obstacles
     obstacle_list = []
-    # for i in range(3, 8):
-    #     for j in range(3, 8):
-    #         o.append(np.array([i, j]))
+    
+    # define a square obstacle
+    obstacle_list.append([N//2 - 3, N//2 - 3, 6])
 
     # defining cameras
     # camera_list = []
@@ -88,14 +88,12 @@ if __name__ == "__main__":
 
     if visualize:
         camera_points = []
-        # for each point x in the grid
-        for i in range(N):
-            for j in range(N):
-                for camera in camera_list:
-                    cam, theta, alpha = camera
-                    # if x is in the scope of the camera, i.e. if the vector x - cam is in the cone defined by the camera
-                    if (i != cam[0] or j != cam[1]) and np.dot((np.array([i, j]) - cam)/np.linalg.norm(np.array([i, j]) - cam), np.array([np.cos(theta), np.sin(theta)])) > np.cos(alpha/2):
-                        camera_points.append(np.array([i, j]))
+        for cam in camera_list:
+            # compute visible points
+            visible_points = compute_camera_visible_points(cam, obstacle_list, N)
+            for point in visible_points:
+                camera_points.append(np.array(point))
+        
         for camera in camera_list:
             cam, theta, alpha = camera
             camera_points.append(cam)
@@ -106,7 +104,7 @@ if __name__ == "__main__":
         for i in range(len(path)):
             plt.plot(path[i][0], path[i][1], 'go')
         # visualize obstacle
-        for point in obstacle_list:
+        for point in obstacles_list_to_points(obstacle_list):
             plt.plot(point[0], point[1], 'ro')
         # visualize camera
         for point in camera_points:

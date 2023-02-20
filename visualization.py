@@ -1,7 +1,8 @@
-from matplotlib.patches import Polygon, Circle
+from matplotlib.patches import Polygon, Circle, Rectangle
 import numpy as np
 import matplotlib.pyplot as plt
 from path_finder import path_finder
+from utils import *
 
 # Code adapted from a code snippet by Yann Dubois de Mont-Martin
 
@@ -58,6 +59,13 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
     #     lw=0
     # ))
 
+    # plot square obstacles
+    for obs in obstacle_list:
+        # obs is in the form (x, y, c) where (x, y) is the position of the lower left corner and c is the side length
+        obs_point = np.array([obs[0], obs[1]])
+        width, height = obs[2], obs[2]
+        obs_1_plt = ax.add_patch(Rectangle(obs_point, width, height))
+
     # example traj
     xls = np.linspace(x_min, x_max, N)
     yls = np.linspace(y_min, y_max, N)
@@ -76,11 +84,19 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
     xf = xf.astype(int)
 
     # defining obstacles
-        # defining obstacles
-    obstacle_list = []
-    # for i in range(3, 8):
-    #     for j in range(3, 8):
-    #         o.append(np.array([i, j]))
+    grid_obstacle_list = []
+    # convert obstacle_list with real values between -2 and 2 to grid values between 0 and N-1
+    for obs in obstacle_list:
+        obs_radius = obs[2]
+        # convert obs_pos to grid
+        obs_x = (obs[0] - x_min) / (x_max - x_min) * (N - 1)
+        obs_y = (obs[1] - y_min) / (y_max - y_min) * (N - 1)
+        obs_rad_grid = obs_radius / (x_max - x_min) * (N - 1)
+        # convert to int
+        obs_x = int(obs_x)
+        obs_y = int(obs_y)
+        obs_radius = int(obs_rad_grid)
+        grid_obstacle_list.append([obs_x, obs_y, obs_radius])
 
     # defining cameras
     camera_list_grid = []
@@ -96,7 +112,7 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
         cam_y = int(cam_y)
         cam_ind = np.array([cam_x, cam_y])
         camera_list_grid.append([cam_ind, cam_orient, cam_angle])
-    path = path_finder(N, x0, xf, camera_list_grid, obstacle_list)
+    path = path_finder(N, x0, xf, camera_list_grid, grid_obstacle_list)
     print(path)
 
     # convert to real values
@@ -127,6 +143,7 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
 if __name__ == "__main__":
     N = 10
     # camera_list = [[np.array([-2., 2.]), -np.pi/4, 0.8]]
-    camera_list = [[np.array([-2, -2.]), 1., .5], [np.array([-2, -2.]), .6, .5]]
-    obstacle_list = []
+    # camera_list = [[np.array([-2, -2.]), 1., .5], [np.array([-2, -2.]), .6, .5]]
+    camera_list = []
+    obstacle_list = [[grid_to_real_coordinates(N//2, N, 2.), grid_to_real_coordinates(N//2, N, 2.), grid_to_real_length(2, N, 2.)]]
     visualization(N, camera_list, obstacle_list)
