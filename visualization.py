@@ -63,7 +63,7 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
     for obs in obstacle_list:
         # obs is in the form (x, y, c) where (x, y) is the position of the lower left corner and c is the side length
         obs_point = np.array([obs[0], obs[1]])
-        width, height = obs[2], obs[2]
+        width, height = obs[2], obs[3]
         obs_1_plt = ax.add_patch(Rectangle(obs_point, width, height))
 
     # example traj
@@ -87,16 +87,19 @@ def visualization(N, camera_list, obstacle_list, pos_start=np.array([-2., -2.]),
     grid_obstacle_list = []
     # convert obstacle_list with real values between -2 and 2 to grid values between 0 and N-1
     for obs in obstacle_list:
-        obs_radius = obs[2]
+        obs_radius_1 = obs[2]
+        obs_radius_2 = obs[3]
         # convert obs_pos to grid
         obs_x = (obs[0] - x_min) / (x_max - x_min) * (N - 1)
         obs_y = (obs[1] - y_min) / (y_max - y_min) * (N - 1)
-        obs_rad_grid = obs_radius / (x_max - x_min) * (N - 1)
+        obs_rad_grid_1 = obs_radius_1 / (x_max - x_min) * (N - 1)
+        obs_rad_grid_2 = obs_radius_2 / (y_max - y_min) * (N - 1)
         # convert to int
         obs_x = int(obs_x)
         obs_y = int(obs_y)
-        obs_radius = int(obs_rad_grid)
-        grid_obstacle_list.append([obs_x, obs_y, obs_radius])
+        obs_radius_1 = int(obs_rad_grid_1)
+        obs_radius_2 = int(obs_rad_grid_2)
+        grid_obstacle_list.append([obs_x, obs_y, obs_radius_1, obs_radius_2])
 
     # defining cameras
     camera_list_grid = []
