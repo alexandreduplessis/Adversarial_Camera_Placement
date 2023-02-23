@@ -96,6 +96,13 @@ def compute_camera_visible_points(cam, obstacles_list, N):
                         break
                 if visible:
                     visible_points.append(point)
+    # add a square of size N//7 around the camera
+    cam_size = N//7
+    for i in range(cam_size):
+        for j in range(cam_size):
+            # if well in the grid and not already in visible_points
+            if cam[0][0] - cam_size//2 + i >= 0 and cam[0][0] - cam_size//2 + i < N and cam[0][1] - cam_size//2 + j >= 0 and cam[0][1] - cam_size//2 + j < N and not np_belongs(np.array([cam[0][0] - cam_size//2 + i, cam[0][1] - cam_size//2 + j]), visible_points):
+                visible_points.append(np.array([cam[0][0] - cam_size//2 + i, cam[0][1] - cam_size//2 + j]))
     return visible_points
 
 

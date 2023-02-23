@@ -35,7 +35,7 @@ def main_U(N, x0, xf, camera_list, obstacle_list):
         cam_y = cam[0][1]
         # W[cam_x, cam_y] = - 1. * cam/np.linalg.norm(cam)
         W[cam_x, cam_y] += 1.
-    W = np.zeros((N, N))
+        
     # f = lambda x, u: np.exp(W[int(x[0]), int(x[1])])
     # f = lambda x, u: .01 * (len(camera_list) + 1. - W[int(x[0]), int(x[1])])
     f = lambda x, u: 1/(W[int(x[0]), int(x[1])] + .1)
